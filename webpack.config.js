@@ -6,14 +6,13 @@ const {VueLoaderPlugin} = require('vue-loader');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin');
-
+const TerserPlugin = require('terser-webpack-plugin');
 
 const resolve = (p) => path.resolve(__dirname, p)
 
 module.exports = (env, argv) => {
   const isDev = argv.mode !== 'production'
   return {
-    // context: '',
     mode: argv.mode || 'development',
     devtool: argv.mode === 'production' ? false : 'eval-source-map',
     performance: { hints: 'warning'},
@@ -41,7 +40,14 @@ module.exports = (env, argv) => {
           },
         },
       },
+      minimize: true,
       minimizer: [
+        new TerserPlugin({
+          parallel: true,
+          terserOptions: {
+            // https://github.com/webpack-contrib/terser-webpack-plugin#terseroptions
+          },
+        }),
         new OptimizeCSSAssetsPlugin(),
       ]
     },
@@ -108,21 +114,21 @@ module.exports = (env, argv) => {
           },
           exclude: /(node_modules|bower_components)/,
         },
-        // {
-        //   test: /\.(js|jsx)$/,
-        //   exclude: /(node_modules|bower_components)/,
-        //   use: [
-        //     {
-        //       loader: 'babel-loader',
-        //       options: {
-        //         cacheDirectory: true,
-        //       },
-        //     },
-        //     // {
-        //     //   loader: 'eslint-loader',
-        //     // },
-        //   ],
-        // },
+        {
+          test: /\.(js|jsx)$/,
+          exclude: /(node_modules|bower_components)/,
+          use: [
+            {
+              loader: 'babel-loader',
+              options: {
+                cacheDirectory: true,
+              },
+            },
+            // {
+            //   loader: 'eslint-loader',
+            // },
+          ],
+        },
       ]
     },
     plugins:[
