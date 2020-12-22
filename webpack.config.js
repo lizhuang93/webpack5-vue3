@@ -150,7 +150,7 @@ module.exports = (env, argv) => {
     devServer: {
       contentBase: './dist',
       open: true,
-      openPage: apps[0],
+      openPage: apps[0] || '',
       host: '0.0.0.0',
       port: '8080',
       hot: true,
