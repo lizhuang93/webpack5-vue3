@@ -6,32 +6,18 @@
 
 <script>
 export default {
-  components: {
-
-  },
-  props: {
-
-  },
+  components: {},
+  props: {},
   data() {
-    return {
-
-    }
+    return {};
   },
 
-  computed:{
+  computed: {},
 
-  },
+  mounted() {},
 
-  mounted() {
-
-  },
-
-  methods: {
-
-  },
-
-}
+  methods: {},
+};
 </script>
 
-<style scoped lang="less" style="text/less">
-</style>
+<style scoped lang="less" style="text/less"></style>

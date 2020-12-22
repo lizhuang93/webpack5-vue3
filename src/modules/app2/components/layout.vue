@@ -2,9 +2,7 @@
   <div class="app1">
     <header>HEADER</header>
     <div class="content">
-      <section class="side-bar">
-        side-MENU
-      </section>
+      <section class="side-bar">side-MENU</section>
       <div class="r-view">
         <router-view></router-view>
       </div>
@@ -15,31 +13,18 @@
 
 <script>
 export default {
-  components: {
-
-  },
-  props: {
-
-  },
+  components: {},
+  props: {},
   data() {
-    return {
-
-    }
+    return {};
   },
 
-  computed:{
+  computed: {},
 
-  },
+  mounted() {},
 
-  mounted() {
-
-  },
-
-  methods: {
-
-  },
-
-}
+  methods: {},
+};
 </script>
 
 <style scoped lang="less" style="text/less">
@@ -68,5 +53,4 @@ export default {
     }
   }
 }
-
 </style>

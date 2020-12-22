@@ -3,14 +3,14 @@
 </template>
 
 <script>
-import HelloWorld from './helloWorld'
+import HelloWorld from './helloWorld';
 
 export default {
   name: 'App',
   components: {
-    HelloWorld
-  }
-}
+    HelloWorld,
+  },
+};
 </script>
 <style lang="less">
 @import url('@/assets/less/reset.less');
