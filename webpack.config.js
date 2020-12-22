@@ -1,26 +1,25 @@
 const path = require('path');
-const HtmlWebpackPlugin = require('html-webpack-plugin')
-const { CleanWebpackPlugin } = require('clean-webpack-plugin')
-const { WebpackManifestPlugin } = require('webpack-manifest-plugin')
-const {VueLoaderPlugin} = require('vue-loader');
+const fs = require('fs')
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+const { CleanWebpackPlugin } = require('clean-webpack-plugin');
+const { WebpackManifestPlugin } = require('webpack-manifest-plugin');
+const { VueLoaderPlugin } = require('vue-loader');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin');
 const TerserPlugin = require('terser-webpack-plugin');
+// 多页
+const apps = fs.readdirSync("./src/modules")
 
-const resolve = (p) => path.resolve(__dirname, p)
+const resolve = (p) => path.resolve(__dirname, p);
 
 module.exports = (env, argv) => {
-  const isDev = argv.mode !== 'production'
+  const isDev = argv.mode !== 'production';
   return {
     mode: argv.mode || 'development',
     devtool: argv.mode === 'production' ? false : 'eval-source-map',
-    performance: { hints: 'warning'},
-    entry: {
-      'app1/app': resolve('./src/modules/app1/main.js'),
-      'app2/app': resolve('./src/modules/app2/main.js'),
-      'app3/app': resolve('./src/modules/app3/main.js'),
-    },
+    performance: { hints: 'warning' },
+    entry: getEntry(),
     output: {
       filename: '[name].[chunkhash:8].js',
       chunkFilename: '[name].[chunkhash:8].js',
@@ -49,15 +48,13 @@ module.exports = (env, argv) => {
           },
         }),
         new OptimizeCSSAssetsPlugin(),
-      ]
+      ],
     },
     resolve: {
       extensions: ['.js', '.jsx', '.vue'],
       alias: {
         '@': resolve('./src'),
-        '@app1': resolve('./src/modules/app1'),
-        '@app2': resolve('./src/modules/app2'),
-        '@app3': resolve('./src/modules/app3'),
+        ...getAlias()
       },
     },
     module: {
@@ -129,14 +126,12 @@ module.exports = (env, argv) => {
             // },
           ],
         },
-      ]
+      ],
     },
-    plugins:[
+    plugins: [
       new CleanWebpackPlugin(),
       new WebpackManifestPlugin(),
-      new HtmlWebpackPlugin({ template: resolve('./src/modules/app1/index.html'), filename: 'app1/index.html', chunks: [`app1/app`] }),
-      new HtmlWebpackPlugin({ template: resolve('./src/modules/app2/index.html'), filename: 'app2/index.html', chunks: [`app2/app`] }),
-      new HtmlWebpackPlugin({ template: resolve('./src/modules/app3/index.html'), filename: 'app3/index.html', chunks: [`app3/app`] }),
+      ...getHtmlWebpackPlugin(),
       new VueLoaderPlugin(),
       new MiniCssExtractPlugin({
         filename: '[name].[contenthash:8].css',
@@ -144,19 +139,21 @@ module.exports = (env, argv) => {
       }),
       // copy custom static assets
       new CopyWebpackPlugin({
-        patterns: [{
-          from: resolve('./static'),
-          to: 'static',
-        }]
+        patterns: [
+          {
+            from: resolve('./static'),
+            to: 'static',
+          },
+        ],
       }),
     ],
     devServer: {
       contentBase: './dist',
       open: true,
-      openPage: 'app1',
+      openPage: apps[0],
       host: '0.0.0.0',
       port: '8080',
-      hot:true,
+      hot: true,
       disableHostCheck: true,
       historyApiFallback: true,
       proxy: {
@@ -165,6 +162,29 @@ module.exports = (env, argv) => {
           pathRewrite: { '^/api': '' },
         },
       },
-    }
-  }
+    },
+  };
+};
+
+function getEntry() {
+  return apps.reduce((obj, appName) => {
+    obj[`${appName}/app`] = resolve(`./src/modules/${appName}/main.js`)
+    return obj
+  }, {}) 
+}
+function getAlias() {
+  return apps.reduce((obj, appName) => {
+    obj[`@${appName}`] = resolve(`./src/modules/${appName}`)
+    return obj
+  }, {}) 
+}
+
+function getHtmlWebpackPlugin() {
+  return apps.reduce((arr, appName) => {
+    return arr.concat(new HtmlWebpackPlugin({
+      template: resolve(`./src/modules/${appName}/index.html`),
+      filename: `${appName}/index.html`,
+      chunks: [`${appName}/app`],
+    }),)
+  }, [])
 }
